@@ -12,7 +12,7 @@ public class CorsConfig implements WebMvcConfigurer {
 
         registry.addMapping("/**")   // 모든 API 중에서
                 .allowedOrigins("http://localhost:5000")  // 허용할 프론트 주소
-                .allowedMethods("GET", "POST")//"PUT", "PATCH", "DELETE", "OPTIONS"
+                .allowedMethods("GET", "POST", "OPTIONS")//"PUT", "PATCH", "DELETE", 
                 .allowedHeaders("*")
                 .allowCredentials(true);
     }
