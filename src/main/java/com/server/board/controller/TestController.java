@@ -68,7 +68,11 @@ public class TestController {
     }
 
     @PostMapping("/insertPageData")
-    public String insertPageData(@RequestBody Map<String, String> req) {
+    public String insertPageData(@RequestBody Map<String, String> req, HttpSession session) {
+        Object usertype = session.getAttribute("usertype");
+        if (!"admin".equals(usertype)) {
+            throw new IllegalArgumentException("not allowed user");
+        }
         List<ViewPageData> result = service.viewPageData(req.get("pagename"));
 
         //존재하지 않는 데이터이면 빈값형식을 만들어서 리턴
@@ -86,7 +90,11 @@ public class TestController {
     }
 
     @PostMapping("/updatePageData")
-    public String updatePageData(@RequestBody Map<String, String> req) {
+    public String updatePageData(@RequestBody Map<String, String> req, HttpSession session) {
+        Object usertype = session.getAttribute("usertype");
+        if (!"admin".equals(usertype)) {
+            throw new IllegalArgumentException("not allowed user");
+        }
         int n = service.updatePageData(req.get("pagename"), req.get("content"), req.get("memo"));
         return n + "개의 행이 업데이트되었습니다.";
     }
@@ -188,9 +196,14 @@ public class TestController {
     )
     public Map<String, Object> uploadMultimedia(
             @RequestPart("file") MultipartFile file,
-            @RequestPart(value = "meta", required = false) String metaJson
+            @RequestPart(value = "meta", required = false) String metaJson,
+            HttpSession session
     )
     {
+        Object usertype = session.getAttribute("usertype");
+        if (!"admin".equals(usertype)) {
+            throw new IllegalArgumentException("not allowed user");
+        }
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -261,8 +274,14 @@ public class TestController {
 
     @PostMapping("/UpdatePageContenttasksummary")
     public String UpdatePageContenttasksummary(
-            @RequestBody UpdatePageContentTaskSummaryRequest req
+            @RequestBody UpdatePageContentTaskSummaryRequest req,
+            HttpSession session
     ) {
+        Object usertype = session.getAttribute("usertype");
+        if (!"admin".equals(usertype)) {
+            throw new IllegalArgumentException("not allowed user");
+        }
+
         if (req == null) {
             throw new IllegalArgumentException("request body is null");
         }
