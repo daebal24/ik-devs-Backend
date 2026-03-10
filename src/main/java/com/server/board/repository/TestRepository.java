@@ -15,6 +15,9 @@ public interface TestRepository {
     int updatePageData(String pageName, String content, String memo);
     //List<ViewPageData> viewPageData();
     List<Login> login(String id, String pw);
+    int getLoginFailcount(String id);
+    int resetLoginFailcount(String id);
+    int incrementLoginFailcount(String id);
     int insertMultimedia(String name, String description, String filename, String filetype);
     List<ViewMediaData> viewMediaData();
 

@@ -103,32 +103,97 @@ public class TestController {
     public Map<String, String> login(@RequestBody Map<String, String> req, HttpSession session) {
         String id = req.get("id");
         String pw = req.get("pw");
+        Map<String, String> result = new HashMap<>(); // 리턴하는 결과값
+        int maxLoginFailcount = 5;
+
+        //로그인 실패카운트 사전체크
+        String failcountResult = service.viewLoginFailcount(id, maxLoginFailcount);
+        if ("locked".equals(failcountResult)) {
+            result.put("result","locked");
+            result.put("id","fail");
+            result.put("usertype","fail");
+            result.put("LoginFailcount","-1");
+            return result;
+        }
 
         //로그인 프로세스 시작
         List<Login> LoginResult = service.login(id, pw);
-
         //디버깅용 메시지
         System.out.println(LoginResult);
-
-        Map<String, String> result = new HashMap<>();
-        if (!LoginResult.isEmpty()) {
-            System.out.println("logins.is not Empty");
-            result.put("result","ok");
-            result.put("id",LoginResult.getFirst().id());
-            result.put("usertype",LoginResult.getFirst().usertype());
-
-            //세션생성
-            setSession(session, id, LoginResult.getFirst().usertype());
-            System.out.println("세션ID=" + session.getId());
-            System.out.println("userId=" + session.getAttribute("userId"));
-
-        } else {
+        //아이디 패스워드 비교 실패. 로그인 실패
+        if (LoginResult.isEmpty()) {
             System.out.println("logins.is Empty");
+            //로그인 실패카운트 +1
+            service.updateLoginFailcount(id, 1);
+            int currentlogincount = service.getLoginFailcount(id);
+
             result.put("result","fail");
             result.put("id","fail");
             result.put("usertype","fail");
+            result.put("LoginFailcount", String.valueOf(currentlogincount));
+
         }
+
+        //구글OTP 사용여부 검사
+        //otp_enabled가 "false"이면 바로 로그인 성공. return loginSuccess(id, LoginResult, session);
+        //otp_enabled가 "true"이면 otp 검사 로직 시작
+            //otp_secret이 null이면 otp_create 리턴. otp 시크릿키값 생성해서 프론트로 리턴
+                //        result.put("result","otp_create");
+                //        result.put("id",id);
+                //        result.put("usertype",LoginResult.getFirst().usertype());
+                //        result.put("otp_sk", otp 시크릿키);
+            //otp_secret이 null이면 otp_verify 리턴.
+                //        result.put("result","otp_verify");
+                //        result.put("id",id);
+                //        result.put("usertype",LoginResult.getFirst().usertype());
+
+        //로그인 성공
+        return loginSuccess(id, LoginResult, session);
+//        System.out.println("logins.is not Empty");
+//        //로그인 실패카운트 초기화
+//        service.updateLoginFailcount(id, 0);
+//
+//        result.put("result","ok");
+//        result.put("id",LoginResult.getFirst().id());
+//        result.put("usertype",LoginResult.getFirst().usertype());
+//        result.put("LoginFailcount","0");
+//
+//        //세션생성
+//        setSession(session, id, LoginResult.getFirst().usertype());
+//        System.out.println("세션ID=" + session.getId());
+//        System.out.println("userId=" + session.getAttribute("userId"));
+
+//        return result;
+    }
+    private Map<String, String> loginSuccess(String id, List<Login> LoginResult, HttpSession session)
+    {
+        Map<String, String> result = new HashMap<>(); // 리턴하는 결과값
+
+        //로그인 성공
+        System.out.println("logins.is not Empty");
+        //로그인 실패카운트 초기화
+        service.updateLoginFailcount(id, 0);
+
+        result.put("result","ok");
+        result.put("id",LoginResult.getFirst().id());
+        result.put("usertype",LoginResult.getFirst().usertype());
+        result.put("LoginFailcount","0");
+
+        //세션생성
+        setSession(session, id, LoginResult.getFirst().usertype());
+        System.out.println("세션ID=" + session.getId());
+        System.out.println("userId=" + session.getAttribute("userId"));
+
         return result;
+    }
+    public String GoogleOTPCreate()
+    {
+        return "";
+    }
+
+    public String GoogleOTPLogin(String id, String OTPcode, HttpSession session)
+    {
+        return "";
     }
 
 //    @PostMapping("/islogin")
@@ -202,6 +267,7 @@ public class TestController {
     {
         Object usertype = session.getAttribute("usertype");
         if (!"admin".equals(usertype)) {
+            System.out.println("usertype = " + usertype);
             throw new IllegalArgumentException("not allowed user");
         }
         Map<String, Object> response = new HashMap<>();

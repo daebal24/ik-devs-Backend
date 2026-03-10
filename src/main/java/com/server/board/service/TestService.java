@@ -47,6 +47,23 @@ public class TestService {
         return repo.login(id, pw);
     }
 
+    // 로그인 실패 카운트 조회 (5회 이상이면 "locked" 반환)
+    public String viewLoginFailcount(String id, int maxloginfailcount) {
+        int count = repo.getLoginFailcount(id);
+        return count >= maxloginfailcount ? "locked" : "ok";
+    }
+
+    public int getLoginFailcount(String id)
+    {
+        return repo.getLoginFailcount(id);
+    }
+
+    // mode 0: 초기화, mode 1: +1
+    public int updateLoginFailcount(String id, int mode) {
+        if (mode == 0) return repo.resetLoginFailcount(id);
+        else           return repo.incrementLoginFailcount(id);
+    }
+
     public int addMultimedia(String name, String description, String filename, String filetype){
         return repo.insertMultimedia(name, description, filename, filetype);
     }

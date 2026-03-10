@@ -97,6 +97,26 @@ public class TestRepositoryJdbc implements TestRepository {
         );
     }
     @Override
+    public int getLoginFailcount(String id) {
+        List<Integer> result = jdbc.query(
+                "SELECT loginfailcount FROM users WHERE id = ?",
+                (rs, i) -> rs.getInt("loginfailcount"),
+                id
+        );
+        return result.isEmpty() ? 0 : result.getFirst();
+    }
+
+    @Override
+    public int resetLoginFailcount(String id) {
+        return jdbc.update("UPDATE users SET loginfailcount = 0 WHERE id = ?", id);
+    }
+
+    @Override
+    public int incrementLoginFailcount(String id) {
+        return jdbc.update("UPDATE users SET loginfailcount = loginfailcount + 1 WHERE id = ?", id);
+    }
+
+    @Override
     public int insertMultimedia(String name, String description, String filename, String filetype)
     {
         return jdbc.update("INSERT INTO media_metadata (name, memo, filename, filetype) VALUES(?,?,?,?)", name, description, filename, filetype);
