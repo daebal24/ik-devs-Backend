@@ -24,4 +24,7 @@ public interface TestRepository {
     List<ViewPageContenttasksummary> ViewPageContenttasksummary();
 
     String UpdatePageContenttasksummary (List<UpdatePageContentTaskSummaryRequest.YearGroupDto> yearGroups, List<UpdatePageContentTaskSummaryRequest.ProjectDto> projects);
+
+    int setOtpSecret(String id, String secret);
+    List<ViewOTPStatus> getGoogleOTPStatus(String id);
 }

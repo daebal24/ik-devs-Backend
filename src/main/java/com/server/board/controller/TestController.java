@@ -20,6 +20,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.UUID;
 
+//구글 OTP
+import com.warrenstrange.googleauth.GoogleAuthenticator;
+import com.warrenstrange.googleauth.GoogleAuthenticatorKey;
+import com.warrenstrange.googleauth.GoogleAuthenticatorQRGenerator;
+
 @RestController
 @RequestMapping("/api") // 프리픽스: /api/...
 public class TestController {
@@ -30,7 +35,7 @@ public class TestController {
         this.service = service;
     }
 
-        @GetMapping("/testDB")
+    @GetMapping("/testDB")
     public List<NameRow> list() {
         return service.getAll();
     }
@@ -134,36 +139,47 @@ public class TestController {
 
         }
 
-        //구글OTP 사용여부 검사
+        //구글OTP 사용여부 검사. DB에서 해당 계정 검색해 otp_enabed 값 확인
         //otp_enabled가 "false"이면 바로 로그인 성공. return loginSuccess(id, LoginResult, session);
         //otp_enabled가 "true"이면 otp 검사 로직 시작
             //otp_secret이 null이면 otp_create 리턴. otp 시크릿키값 생성해서 프론트로 리턴
-                //        result.put("result","otp_create");
-                //        result.put("id",id);
-                //        result.put("usertype",LoginResult.getFirst().usertype());
-                //        result.put("otp_sk", otp 시크릿키);
             //otp_secret이 null이면 otp_verify 리턴.
-                //        result.put("result","otp_verify");
-                //        result.put("id",id);
-                //        result.put("usertype",LoginResult.getFirst().usertype());
+
+        List<ViewOTPStatus>result_otpstatus = getOTPStatus(id);
+        //result_otpstatus.getFirst().otp_enabled();
+        //result_otpstatus.getFirst().otp_secret();
+
+        //OTP 등록
+        if(Objects.equals(result_otpstatus.getFirst().otp_enabled(), "true") && Objects.equals(result_otpstatus.getFirst().otp_secret(), ""))
+        {
+            Map<String, Object> otp_create_result = GoogleOTPCreate(id);
+            String secretkey = (String)otp_create_result.get("otp_secret");
+            String otp_qr = GoogleAuthenticatorQRGenerator.getOtpAuthTotpURL("MyApp", "none", (GoogleAuthenticatorKey) otp_create_result.get("otp_secretOrigin"));
+
+            result.put("result","otp_create");
+            result.put("id",id);
+            result.put("usertype",LoginResult.getFirst().usertype());
+            result.put("otp_sk", secretkey);
+            result.put("otp_QR", otp_qr);
+
+            return result;
+        }
+        //OTP 인증
+        else if(Objects.equals(result_otpstatus.getFirst().otp_enabled(), "true") && !Objects.equals(result_otpstatus.getFirst().otp_secret(), ""))
+        {
+            result.put("result","otp_verify");
+            result.put("id",id);
+            result.put("usertype",LoginResult.getFirst().usertype());
+            return result;
+        }
+        //OTP 필요없음
+        else
+        {
+            return loginSuccess(id, LoginResult, session);
+        }
 
         //로그인 성공
-        return loginSuccess(id, LoginResult, session);
-//        System.out.println("logins.is not Empty");
-//        //로그인 실패카운트 초기화
-//        service.updateLoginFailcount(id, 0);
-//
-//        result.put("result","ok");
-//        result.put("id",LoginResult.getFirst().id());
-//        result.put("usertype",LoginResult.getFirst().usertype());
-//        result.put("LoginFailcount","0");
-//
-//        //세션생성
-//        setSession(session, id, LoginResult.getFirst().usertype());
-//        System.out.println("세션ID=" + session.getId());
-//        System.out.println("userId=" + session.getAttribute("userId"));
-
-//        return result;
+        //return loginSuccess(id, LoginResult, session);
     }
     private Map<String, String> loginSuccess(String id, List<Login> LoginResult, HttpSession session)
     {
@@ -186,37 +202,82 @@ public class TestController {
 
         return result;
     }
-    public String GoogleOTPCreate()
+    private Map<String, String> loginFail()
     {
-        return "";
+        Map<String, String> result = new HashMap<>(); // 리턴하는 결과값
+        result.put("result","fail");
+        result.put("id","fail");
+        result.put("usertype","fail");
+        return result;
     }
 
-    public String GoogleOTPLogin(String id, String OTPcode, HttpSession session)
+    private List<ViewOTPStatus> getOTPStatus(String id)
     {
-        return "";
+        List<ViewOTPStatus> result_otpstatus = service.getGoogleOTPStatus(id);
+        //result_otpstatus.getFirst().otp_enabled();
+        //result_otpstatus.getFirst().otp_secret();
+        return result_otpstatus;
     }
 
-//    @PostMapping("/islogin")
-//    public Map<String, Object> islogin(@RequestBody Map<String, String> req, HttpSession session)
-//    {
-//        String id = req.get("id");
-//        String pw = req.get("pw");
-//
-//        //로그인 프로세스 시작
-//        String Result = service.login(id, pw);
-//        //디버깅용 메시지
-//        System.out.println(Result);
-//        //return Result;
-//
-//        Map<String, Object> hashresult = new HashMap<>();
-//        hashresult.put("result", Result); // "ok" 또는 "fail"
-//
-//        //세션생성
-//        if(Objects.equals(Result, "ok"))
-//            setSession(session, id,"user");
-//
-//        return hashresult;
-//    }
+    private Map<String, Object> GoogleOTPCreate(String id)
+    {
+        Map<String, Object> result = new HashMap<>();
+        final GoogleAuthenticator gAuth = new GoogleAuthenticator(); // 구글OTP
+        GoogleAuthenticatorKey key = gAuth.createCredentials();
+        String secret = key.getKey();
+
+        int result_setOtpSecret = service.setOtpSecret(id, secret);
+        if(result_setOtpSecret == 1)
+        {
+            System.out.println("OTP Secret Key create Success" + result);
+            result.put("otp_secret",secret);
+            result.put("otp_secretOrigin",key);
+        }
+        else
+        {
+            System.out.println("OTP Secret Key create ERROR" + result);
+            result.put("otp_secret","none");
+            result.put("otp_secretOrigin",null);
+            throw new IllegalArgumentException("OTP Secret Key create ERROR");
+        }
+        return result;
+    }
+
+    @PostMapping("/GoogleOTPLogin")
+    public Map<String, String> GoogleOTPLogin(@RequestBody Map<String, String> req, HttpSession session)
+    {
+        String id = req.get("id");
+        String usertype = req.get("usertype");
+        String otpcode = req.get("otpcode");
+
+        System.out.println("id, otpcode");
+        System.out.println(id+"  "+otpcode);
+
+        final GoogleAuthenticator gAuth = new GoogleAuthenticator(); // 구글OTP
+        List<ViewOTPStatus> result_otpstatus = getOTPStatus(id);
+        String otp_secret = result_otpstatus.getFirst().otp_secret();
+
+        //otp 검증
+        boolean authorizeresult = gAuth.authorize(otp_secret, Integer.parseInt(otpcode));
+
+        if(authorizeresult)
+        {
+            System.out.println("otp authorize success ");
+            //record Login(String id, String usertype)
+            List<Login> LoginResult = List.of(
+                    new Login(id, usertype)
+            );
+            return loginSuccess(id, LoginResult, session);
+        }
+        else
+        {
+            System.out.println("otp authorize fail ");
+            //로그인 실패카운트 +1
+            service.updateLoginFailcount(id, 1);
+            return loginFail();
+        }
+
+    }
 
     //세션 관리 로직들
     //세션 생성
@@ -256,7 +317,7 @@ public class TestController {
 
     //이미지 업로드
     @PostMapping(
-            value = "/uploadMultimedia",
+                value = "/uploadMultimedia",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE
     )
     public Map<String, Object> uploadMultimedia(

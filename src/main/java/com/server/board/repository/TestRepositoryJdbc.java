@@ -265,6 +265,27 @@ public class TestRepositoryJdbc implements TestRepository {
         return "ok";
     }
 
+    @Override
+    public int setOtpSecret(String id, String secret) {
+        return jdbc.update("UPDATE users SET otp_secret = ? WHERE id = ?", secret, id);
+    }
+
+    public List<ViewOTPStatus> getGoogleOTPStatus(String id)
+    {
+        String query = "SELECT otp_enabled, otp_secret FROM users where id=?";
+        System.out.println("getGoogleOTPStatus processing. id : "+id);
+
+        return jdbc.query(
+                query,
+                (rs, i) -> new ViewOTPStatus(
+                        rs.getString("otp_enabled"),
+                        rs.getString("otp_secret") != null ? rs.getString("otp_secret") : ""
+                ),
+                id
+        );
+    }
+
+
 
     //    @Override
 //    public List<ViewPageData> viewPageData() {

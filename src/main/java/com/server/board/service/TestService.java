@@ -80,6 +80,14 @@ public class TestService {
         return repo.UpdatePageContenttasksummary(yearGroups, projects);
     }
 
+    public int setOtpSecret(String id, String secret) {
+        return repo.setOtpSecret(id, secret);
+    }
+
+    public List<ViewOTPStatus> getGoogleOTPStatus(String id) {
+        return repo.getGoogleOTPStatus(id);
+    }
+
 
 //    public List<ViewPageData> viewPageData() {
 //        return repo.viewPageData();
