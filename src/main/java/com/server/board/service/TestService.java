@@ -88,6 +88,10 @@ public class TestService {
         return repo.getGoogleOTPStatus(id);
     }
 
+    public int test_gooleotpreset(String id) {
+        return repo.test_gooleotpreset(id);
+    }
+
 
 //    public List<ViewPageData> viewPageData() {
 //        return repo.viewPageData();

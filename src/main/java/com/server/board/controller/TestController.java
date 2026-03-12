@@ -202,12 +202,13 @@ public class TestController {
 
         return result;
     }
-    private Map<String, String> loginFail()
+    private Map<String, String> loginFail(int loginfailcount)
     {
         Map<String, String> result = new HashMap<>(); // 리턴하는 결과값
         result.put("result","fail");
         result.put("id","fail");
         result.put("usertype","fail");
+        result.put("LoginFailcount", String.valueOf(loginfailcount));
         return result;
     }
 
@@ -274,9 +275,19 @@ public class TestController {
             System.out.println("otp authorize fail ");
             //로그인 실패카운트 +1
             service.updateLoginFailcount(id, 1);
-            return loginFail();
+            int currentlogincount = service.getLoginFailcount(id);
+            return loginFail(currentlogincount);
         }
+    }
 
+    @PostMapping("/test_gooleotpreset")
+    public String test_gooleotpreset()
+    {
+        System.out.println("Test : OTP Reset start");
+        String id = "otptest";//req.get("id");
+        int result = service.test_gooleotpreset(id);
+        System.out.println("Test : OTP Reset end : "+ result);
+        return "ok";
     }
 
     //세션 관리 로직들

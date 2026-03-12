@@ -270,6 +270,7 @@ public class TestRepositoryJdbc implements TestRepository {
         return jdbc.update("UPDATE users SET otp_secret = ? WHERE id = ?", secret, id);
     }
 
+    @Override
     public List<ViewOTPStatus> getGoogleOTPStatus(String id)
     {
         String query = "SELECT otp_enabled, otp_secret FROM users where id=?";
@@ -283,6 +284,13 @@ public class TestRepositoryJdbc implements TestRepository {
                 ),
                 id
         );
+    }
+
+    @Override
+    public int test_gooleotpreset(String id)
+    {
+        System.out.println("Test : OTP Reset query activated");
+        return jdbc.update("UPDATE users SET otp_secret = null WHERE id = ?", id);
     }
 
 

@@ -27,4 +27,7 @@ public interface TestRepository {
 
     int setOtpSecret(String id, String secret);
     List<ViewOTPStatus> getGoogleOTPStatus(String id);
+
+    //구글 OTP 임시시연용 함수. 특정 테스트아이디의 구글 OTP기능 초기화
+    int test_gooleotpreset(String id);
 }
