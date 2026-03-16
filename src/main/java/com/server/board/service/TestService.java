@@ -58,6 +58,18 @@ public class TestService {
         return repo.getLoginFailcount(id);
     }
 
+    public String isidexist(String id) {
+        return repo.isidexist(id);
+    }
+
+    public int setOtpSecret(String id, String secret) {
+        return repo.setOtpSecret(id, secret);
+    }
+
+    public List<ViewOTPStatus> getGoogleOTPStatus(String id) {
+        return repo.getGoogleOTPStatus(id);
+    }
+
     // mode 0: 초기화, mode 1: +1
     public int updateLoginFailcount(String id, int mode) {
         if (mode == 0) return repo.resetLoginFailcount(id);
@@ -75,22 +87,19 @@ public class TestService {
         return repo.ViewPageContenttasksummary();
     }
 
-    public String UpdatePageContenttasksummary(List<UpdatePageContentTaskSummaryRequest.YearGroupDto> yearGroups, List<UpdatePageContentTaskSummaryRequest.ProjectDto> projects)
-    {
+    public String UpdatePageContenttasksummary(List<UpdatePageContentTaskSummaryRequest.YearGroupDto> yearGroups, List<UpdatePageContentTaskSummaryRequest.ProjectDto> projects) {
         return repo.UpdatePageContenttasksummary(yearGroups, projects);
     }
 
-    public int setOtpSecret(String id, String secret) {
-        return repo.setOtpSecret(id, secret);
-    }
 
-    public List<ViewOTPStatus> getGoogleOTPStatus(String id) {
-        return repo.getGoogleOTPStatus(id);
-    }
 
     public int test_gooleotpreset(String id) {
         return repo.test_gooleotpreset(id);
     }
+
+
+
+
 
 
 //    public List<ViewPageData> viewPageData() {

@@ -30,4 +30,6 @@ public interface TestRepository {
 
     //구글 OTP 임시시연용 함수. 특정 테스트아이디의 구글 OTP기능 초기화
     int test_gooleotpreset(String id);
+
+    String isidexist(String id);
 }

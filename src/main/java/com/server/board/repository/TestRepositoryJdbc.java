@@ -81,6 +81,19 @@ public class TestRepositoryJdbc implements TestRepository {
     }
 
     @Override
+    public String isidexist(String id)
+    {
+        List<Login> result = jdbc.query(
+                "SELECT pk FROM users WHERE id = ?",
+                (rs, i) -> new Login(
+                        rs.getString("id"),
+                        rs.getString("usertype")
+                ), id
+        );
+        return result.isEmpty() ? "false" : "true";
+    }
+
+    @Override
     public List<Login> login(String id, String pw)
     {
         String query = "SELECT * FROM users where id=? and pw=?";

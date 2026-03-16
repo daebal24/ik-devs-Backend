@@ -66,6 +66,7 @@ public class TestController {
         return service.viewPageDataAll();
     }
 
+
     @PatchMapping("/updateName")
     public String update(@RequestBody UpdateNameRequest req) {
         int n = service.rename(req.oldName(), req.newName());
@@ -118,6 +119,14 @@ public class TestController {
             result.put("id","fail");
             result.put("usertype","fail");
             result.put("LoginFailcount","-1");
+            return result;
+        }
+        String result_isidexist = service.isidexist(id);
+        if(result_isidexist.equals("false"))
+        {
+            result.put("result","id_not_exist");
+            result.put("id",id);
+            result.put("usertype","unknown");
             return result;
         }
 
