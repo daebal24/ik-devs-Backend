@@ -15,7 +15,7 @@ public class DataSourceConfig {
         // 프로젝트 루트의 test.db
         DriverManagerDataSource ds = new DriverManagerDataSource();
         ds.setDriverClassName("org.sqlite.JDBC");
-        ds.setUrl("jdbc:sqlite:./test.db");
+        ds.setUrl("jdbc:sqlite:./Database.db");
         return ds;
     }
 
