@@ -45,6 +45,7 @@ dependencies {
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.17.0'//json
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0' // .env 파일 지원
 }
 
 tasks.named('test') {
