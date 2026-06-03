@@ -4,7 +4,8 @@ import com.server.board.domain.dto.UpdatePageContentTaskSummaryRequest;
 import com.server.board.domain.dto.ViewPageContenttasksummary;
 import com.server.board.domain.dto.ViewPageData;
 import com.server.board.service.MainService;
-import jakarta.servlet.http.HttpSession;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -42,8 +43,9 @@ public class PageController {
         return service.viewPageDataAll();
     }
     @PostMapping("/insertPageData")
-    public String insertPageData(@RequestBody Map<String, String> req, HttpSession session) {
-        Object usertype = session.getAttribute("usertype");
+    public String insertPageData(@RequestBody Map<String, String> req, HttpServletRequest request) {
+        Claims claims = (Claims) request.getAttribute("jwtClaims");
+        String usertype = claims != null ? claims.get("usertype", String.class) : null;
         if (!"admin".equals(usertype)) {
             throw new IllegalArgumentException("not allowed user");
         }
@@ -64,8 +66,9 @@ public class PageController {
     }
 
     @PostMapping("/updatePageData")
-    public String updatePageData(@RequestBody Map<String, String> req, HttpSession session) {
-        Object usertype = session.getAttribute("usertype");
+    public String updatePageData(@RequestBody Map<String, String> req, HttpServletRequest request) {
+        Claims claims = (Claims) request.getAttribute("jwtClaims");
+        String usertype = claims != null ? claims.get("usertype", String.class) : null;
         if (!"admin".equals(usertype)) {
             throw new IllegalArgumentException("not allowed user");
         }
@@ -80,9 +83,10 @@ public class PageController {
     @PostMapping("/UpdatePageContenttasksummary")
     public String UpdatePageContenttasksummary(
             @RequestBody UpdatePageContentTaskSummaryRequest req,
-            HttpSession session
+            HttpServletRequest request
     ) {
-        Object usertype = session.getAttribute("usertype");
+        Claims claims = (Claims) request.getAttribute("jwtClaims");
+        String usertype = claims != null ? claims.get("usertype", String.class) : null;
         if (!"admin".equals(usertype)) {
             throw new IllegalArgumentException("not allowed user");
         }
