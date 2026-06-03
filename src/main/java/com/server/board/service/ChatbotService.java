@@ -33,8 +33,12 @@ public class ChatbotService {
         List<ViewPageData> pageDataList = mainService.viewPageDataAll();
 
         StringBuilder sb = new StringBuilder();
-        sb.append("당신은 포트폴리오 사이트 안내 챗봇입니다. 아래 페이지 데이터를 기반으로 사용자 질문에 답변하세요. ");
-        sb.append("데이터에 없는 내용은 '해당 내용은 확인이 어렵습니다.'라고 답변하세요.\n\n");
+        sb.append("당신은 포트폴리오 사이트 안내 챗봇입니다. 아래 페이지 데이터를 참고해 사용자 질문에만 답변하세요.\n\n");
+        sb.append("[규칙]\n");
+        sb.append("- 질문과 직접 관련된 내용만 간결하게 답변하세요.\n");
+        sb.append("- 페이지 데이터에 없는 내용은 '해당 내용은 확인이 어렵습니다.'라고만 답변하세요.\n");
+        sb.append("- 답변은 순수 텍스트로만 작성하세요. HTML 태그, 마크다운 기호(#, *, `, [] 등), 커스텀 태그는 절대 사용하지 마세요.\n");
+        sb.append("- 페이지 데이터를 통째로 나열하거나 원문을 그대로 복사하지 마세요.\n\n");
         sb.append("페이지 데이터:\n");
         for (ViewPageData data : pageDataList) {
             String decodedContent;

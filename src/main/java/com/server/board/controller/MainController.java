@@ -3,7 +3,8 @@ package com.server.board.controller;
 
 import com.server.board.domain.dto.*;
 import com.server.board.service.MainService;
-import jakarta.servlet.http.HttpSession;
+import io.jsonwebtoken.Claims;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.*;
 
 import org.springframework.http.MediaType;
@@ -47,10 +48,11 @@ public class MainController {
     public Map<String, Object> uploadMultimedia(
             @RequestPart("file") MultipartFile file,
             @RequestPart(value = "meta", required = false) String metaJson,
-            HttpSession session
+            HttpServletRequest request
     )
     {
-        Object usertype = session.getAttribute("usertype");
+        Claims claims = (Claims) request.getAttribute("jwtClaims");
+        String usertype = claims != null ? claims.get("usertype", String.class) : null;
         if (!"admin".equals(usertype)) {
             System.out.println("usertype = " + usertype);
             throw new IllegalArgumentException("not allowed user");
