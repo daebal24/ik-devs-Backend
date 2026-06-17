@@ -20,6 +20,7 @@ public interface MainRepository {
     int incrementLoginFailcount(String id);
     int insertMultimedia(String name, String description, String filename, String filetype);
     List<ViewMediaData> viewMediaData();
+    int deleteMediaData(String filename);
 
     List<ViewPageContenttasksummary> ViewPageContenttasksummary();
 

@@ -148,6 +148,11 @@ public class MainRepositoryJdbc implements MainRepository {
         );
     }
 
+    @Override
+    public int deleteMediaData(String filename) {
+        return jdbc.update("UPDATE media_metadata SET is_deleted = 1 WHERE filename = ?", filename);
+    }
+
     public List<ViewPageContenttasksummary> ViewPageContenttasksummary()
     {
         return jdbc.query(

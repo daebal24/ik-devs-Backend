@@ -83,6 +83,10 @@ public class MainService {
         return repo.viewMediaData();
     }
 
+    public int deleteMediaData(String filename) {
+        return repo.deleteMediaData(filename);
+    }
+
     public List<ViewPageContenttasksummary> ViewPageContenttasksummary() {
         return repo.ViewPageContenttasksummary();
     }

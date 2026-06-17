@@ -120,6 +120,35 @@ public class MainController {
         return service.viewMediaData();
     }
 
+    @PostMapping("/deleteMediaData")
+    public Map<String, Object> deleteMediaData(
+            @RequestBody DeleteMediaRequest req,
+            HttpServletRequest request
+    ) {
+        Claims claims = (Claims) request.getAttribute("jwtClaims");
+        String usertype = claims != null ? claims.get("usertype", String.class) : null;
+        if (!"admin".equals(usertype)) {
+            throw new IllegalArgumentException("not allowed user");
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        try {
+            int n = service.deleteMediaData(req.filename());
+
+            Path rootPath = Paths.get("").toAbsolutePath();
+            Path filePath = rootPath.resolve("multimedia").resolve(req.filename());
+            Files.deleteIfExists(filePath);
+
+            response.put("ok", true);
+            response.put("deleted", n);
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("ok", false);
+            response.put("message", e.toString());
+        }
+        return response;
+    }
+
     //테스트용 api
 //    @GetMapping("/testDB")
 //    public List<NameRow> list() {
